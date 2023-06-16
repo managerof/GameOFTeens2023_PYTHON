@@ -12,7 +12,7 @@ class User:
         self.name = user_name
         self.date_stamp = date_stamp
         self.language_code = language_code
-        
+
         # lifecell user settings
         self.tariff_name = tariff_name
         self.tariff_price = tariff_price #  UAH
@@ -33,7 +33,6 @@ class Database:
                 self.data = json.loads(file_content)
     
     def Update(self):
-        
         with open(self.data_path, "w+") as file:
             json.dump(self.data, file)
     
