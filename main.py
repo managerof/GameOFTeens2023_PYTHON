@@ -1,7 +1,7 @@
 import telebot
 import db as utils
 
-bot = telebot.TeleBot('6048696984:AAFLoKqEys0oloCNlXWCdB_1UHqS8oAglEo')
+bot = telebot.TeleBot('bot api key')
 
 db = utils.Database(utils.USERS_DATA_FILE_PATH)
 
