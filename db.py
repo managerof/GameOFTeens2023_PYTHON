@@ -5,25 +5,20 @@ USERS_DATA_FILE_PATH = "./users_data.json"
 
 
 class User:
-    def __init__(self, user_id, user_name, date_stamp, language_code):
+    def __init__(self, user_id, user_name, date_stamp, language_code, tariff_name=None, tariff_price=None, internet_left=0, minutes_left=0, sms_left=0):
         
         # user settings
-        self.id = user_id
+        self.id = str(user_id)
         self.name = user_name
         self.date_stamp = date_stamp
         self.language_code = language_code
         
         # lifecell user settings
-        self.tariff_name = None
-        self.tariff_price = None #  UAH
-        self.internet_left = 0 # megabytes
-        self.minutes_left = 0
-        self.sms_left = 0
-    
-    def update_user(self, user_id=None, user_name=None, language_code=None):
-        self.id = user_id
-        self.user_name = user_name
-        self.language_code = language_code
+        self.tariff_name = tariff_name
+        self.tariff_price = tariff_price #  UAH
+        self.internet_left = internet_left # megabytes
+        self.minutes_left = minutes_left
+        self.sms_left = sms_left
 
 class Database:
     def __init__(self, data_path):
@@ -38,19 +33,17 @@ class Database:
                 self.data = json.loads(file_content)
     
     def Update(self):
+        
         with open(self.data_path, "w+") as file:
             json.dump(self.data, file)
     
     def IsNewbie(self, user_id):
-        if user_id in self.data:
+        if str(user_id) in self.data:
             return False
         
         return True
     
-    def AddUser(self, user):        
-        if user.id in self.data:
-            return
-        
+    def UpdateUser(self, user):                
         self.data[user.id] = {"name":user.name,
                               "date_stamp":user.date_stamp,
                               "language_code":user.language_code,
@@ -60,3 +53,16 @@ class Database:
                               "minutes_left":user.minutes_left,
                               "sms_left":user.sms_left}
         self.Update()
+    
+    def LoadUser(self, user_id):
+        user_data = self.data[str(user_id)]
+        
+        return User(user_id,
+                    user_data["name"],
+                    user_data["date_stamp"],
+                    user_data["language_code"],
+                    user_data["tariff_name"],
+                    user_data["tariff_price"],
+                    user_data["internet_left"],
+                    user_data["minutes_left"],
+                    user_data["sms_left"])
