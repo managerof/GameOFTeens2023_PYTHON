@@ -37,15 +37,26 @@ class Database:
             else:
                 self.data = json.loads(file_content)
     
-    def UpdateUserData(self, user: User):
-        print(self.data[user.id])
+    def Update(self):
+        with open(self.data_path, "w+") as file:
+            json.dump(self.data, file)
     
     def IsNewbie(self, user_id):
         if user_id in self.data:
             return False
         
         return True
-
-if __name__ == "__main__":
-    db = Database(USERS_DATA_FILE_PATH)
     
+    def AddUser(self, user):        
+        if user.id in self.data:
+            return
+        
+        self.data[user.id] = {"name":user.name,
+                              "date_stamp":user.date_stamp,
+                              "language_code":user.language_code,
+                              "tariff_name":user.tariff_name,
+                              "tariff_price":user.tariff_price,
+                              "internet_left":user.internet_left,
+                              "minutes_left":user.minutes_left,
+                              "sms_left":user.sms_left}
+        self.Update()

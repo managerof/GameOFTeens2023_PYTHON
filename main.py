@@ -1,7 +1,7 @@
 import telebot
 import db as utils
 
-bot = telebot.TeleBot('bot api key')
+bot = telebot.TeleBot('6048696984:AAFLoKqEys0oloCNlXWCdB_1UHqS8oAglEo')
 
 db = utils.Database(utils.USERS_DATA_FILE_PATH)
 
@@ -14,8 +14,8 @@ def handle_start(message):
                       message.date,
                       message.from_user.language_code)
     
-#     if db.IsNewbie(user.id):
-#         db.addUser(user)
+    if db.IsNewbie(user.id):
+        db.AddUser(user)
     
     bot.send_message(user.id, f"{user.name}, ваш індетефіційний телеграм номер - {user.id}")
     
