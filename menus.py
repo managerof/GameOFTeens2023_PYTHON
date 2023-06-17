@@ -4,9 +4,9 @@ import local              # localization
 
 def get_lang_menu():
     menu = types.InlineKeyboardMarkup(row_width=1)
-    menu.add(types.InlineKeyboardButton("Українська", callback_data='uk'))
-    menu.add(types.InlineKeyboardButton("Русский", callback_data='ru'))
-    menu.add(types.InlineKeyboardButton("English", callback_data='en'))
+    menu.add(types.InlineKeyboardButton("🇺🇦Українська", callback_data='uk'))
+    menu.add(types.InlineKeyboardButton("🇷🇺Русский", callback_data='ru'))
+    menu.add(types.InlineKeyboardButton("🇺🇸English", callback_data='en'))
     
     return menu
 

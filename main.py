@@ -2,13 +2,15 @@ import telebot
 from telebot import types # for markup buttons
 import db as utils        # data structures
 from menus import *       # import pre-designed menus
-#import callbacks          # callbacks handler
+from tariff_advice import * # pre-trained neural network
 
 
-bot = telebot.TeleBot('BOT_API_TOKEN')
+bot = telebot.TeleBot('BOT_API_KEY')
 db = utils.Database(utils.USERS_DATA_FILE_PATH) # db object to handle user data (save, load, init user)
+nn = load_nn()
 
 temp_users_data = {}
+adv_tariffs = [""]
 
 @bot.message_handler(commands=['lang'])
 def choose_language(message):
@@ -208,9 +210,9 @@ def handle_callback_query(call):
             temp_users_data[user.id]["socials"] = datta[2]
         elif "4." in datta:
             temp_users_data[user.id]["pay"] = datta[2]
-    
-    # debug
-    print(user.name, user.id, temp_users_data[user.id])
+            
+            # debug
+            print(user.name, user.id, temp_users_data[user.id])
     
     # internet asks
     if "lets_choose_tariff_" in call.data:
@@ -252,8 +254,22 @@ def handle_callback_query(call):
         bot.send_message(user.id, local.usually_use3[user.language_code], reply_markup=menu)
         return
     
-    if "choose_tariff_step5" in call.data:
-        bot.send_message(user.id, "ну якшо ті вже все знаеш чому просто не перейдеш на сайт на підключиш потрібний тариф???")
+    if "choose_tariff_step5" in call.data:        
+        data_collected = temp_users_data[user.id]
+        
+        inputs = [int(data_collected["internet"]),
+                  int(data_collected["calls"]),
+                  int(data_collected["socials"]),
+                  int(data_collected["pay"]) ]
+        
+        predict = nn.predict(inputs)
+        
+        package_chose = list(predict).index( max(predict) )
+        
+        img = open(f"./img/adv/{package_chose-1}.png", 'rb')
+        
+        bot.send_message(user.id, local.tadvice[user.language_code])
+        bot.send_photo(user.id, img, caption="bebra") # reply_markup=menu
     
     if call.data == "show_all_tariffs":
         bot.send_message(user.id, local.all_tariffs[user.language_code], reply_markup=all_tariffs(user.language_code))
