@@ -62,42 +62,32 @@ def load_nn():
     nn.weights4 = loaded_data["w4"]
     
     return nn
-    
+
+def save_weights(weights):
+    # Save the dictionary to a file
+    np.savez('weights.npz', **ws)
 
 # tests
-# if __name__ == "__main__":
-#     nn = TariffAdvisor()
-#     inputs = np.array([
-#         [3,2,2,3],
-#         [2,2,3,1],
-#         [2,1,2,1],
-#         [3,3,3,3],
-#         [1,1,1,1] ]) - 2
-#     labels = np.array([
-#         [1,0,0,0,0],
-#         [0,1,0,0,0],
-#         [0,0,1,0,0],
-#         [0,0,0,1,0],
-#         [0,0,0,0,1] ])
-#     nn.train(inputs, labels, 1000)
-# 
-#     for i, ins in enumerate(inputs):
-#         print(f"input: {ins}, out: {np.round(nn.predict(ins), 1)}, error: {nn.predict(ins)-labels[i]}\n")
-# 
-#     ws = {'w1': array([[-0.59324725,  2.29812294, -1.85393209],
-#            [-2.38027967, -0.58776987, -1.70942779],
-#            [-2.15780396,  3.07047142, -0.14869593],
-#            [-0.50106943, -1.46590069, -1.67490944]]), 'w2': array([[ 3.50920037, -1.85977297, -3.27782463],
-#            [-2.840139  ,  4.8287195 ,  2.63938683],
-#            [ 4.04562891, -1.16946216, -1.73891269]]), 'w3': array([[-6.62823345,  7.21059035,  4.62214223],
-#            [ 3.1958672 , -1.0210842 , -5.61744577],
-#            [ 3.05202392, -2.07654738, -3.62941825]]), 'w4': array([[ -0.11482692,  -3.34468087, -10.44340713,   2.40572812,
-#              -6.30670041],
-#            [ -0.9325851 ,   3.44264845,   3.9792921 ,  -9.49723297,
-#              -5.13754521],
-#            [ -4.29472885, -12.20782212,  -5.75082529,  -3.94013424,
-#               7.51471833]])}
-# 
-#     # Save the dictionary to a file
-#     np.savez('weights.npz', **ws)
+if __name__ == "__main__":
+    nn = TariffAdvisor()
+    inputs = np.array([
+        [3,2,2,3],
+        [2,1,2,2],
+        [2,1,1,1],
+        [1,1,1,1],
+        [2,3,3,3] ]) - 2
+    labels = np.array([
+        [1,0,0,0,0],
+        [0,1,0,0,0],
+        [0,0,1,0,0],
+        [0,0,0,1,0],
+        [0,0,0,0,1] ])
+    nn.train(inputs, labels, 1000)
 
+    for i, ins in enumerate(inputs):
+        print(f"input: {ins}, out: {np.round(nn.predict(ins), 1)}, error: {nn.predict(ins)-labels[i]}\n")
+    
+    ws = {"w1":nn.weights1,
+          "w2":nn.weights2,
+          "w3":nn.weights3,
+          "w4":nn.weights4}

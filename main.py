@@ -1,7 +1,7 @@
 import telebot
-from telebot import types # for markup buttons
-import db as utils        # data structures
-from menus import *       # import pre-designed menus
+from telebot import types   # for markup buttons
+import db as utils          # data structures
+from menus import *         # import pre-designed menus
 from tariff_advice import * # pre-trained neural network
 
 
@@ -10,7 +10,11 @@ db = utils.Database(utils.USERS_DATA_FILE_PATH) # db object to handle user data 
 nn = load_nn()
 
 temp_users_data = {}
-adv_tariffs = [""]
+packages_links = ["https://www.lifecell.ua/uk/mobilnij-zvyazok/taryfy/vilniy-life-2021/",
+                  "https://www.lifecell.ua/uk/mobilnij-zvyazok/taryfy/smart-life-2021/",
+                  "https://www.lifecell.ua/uk/mobilnij-zvyazok/taryfy/prosto-life-2021/",
+                  "https://www.lifecell.ua/uk/mobilnij-zvyazok/gadget-series/",
+                  "https://www.lifecell.ua/uk/mobilnij-zvyazok/taryfy/shkilniy/",]
 
 @bot.message_handler(commands=['lang'])
 def choose_language(message):
@@ -257,19 +261,26 @@ def handle_callback_query(call):
     if "choose_tariff_step5" in call.data:        
         data_collected = temp_users_data[user.id]
         
-        inputs = [int(data_collected["internet"]),
-                  int(data_collected["calls"]),
-                  int(data_collected["socials"]),
-                  int(data_collected["pay"]) ]
+        inputs = [int(data_collected["internet"])-2,
+                  int(data_collected["calls"])-2,
+                  int(data_collected["socials"])-2,
+                  int(data_collected["pay"])-2 ]
         
         predict = nn.predict(inputs)
         
         package_chose = list(predict).index( max(predict) )
+        print(package_chose, predict)
         
-        img = open(f"./img/adv/{package_chose-1}.png", 'rb')
+        img = open(f"./img/adv/{package_chose+1}.png", 'rb')
+        url = packages_links[package_chose]
+        
+        menu = types.InlineKeyboardMarkup(row_width=2)
+        menu.add(types.InlineKeyboardButton(local.go_back[user.language_code], callback_data='help_menu'))
+        link = types.InlineKeyboardButton(local.more_tariffs[user.language_code], url=url)
+        menu.add(link)
         
         bot.send_message(user.id, local.tadvice[user.language_code])
-        bot.send_photo(user.id, img, caption="bebra") # reply_markup=menu
+        bot.send_photo(user.id, img, reply_markup=menu)
     
     if call.data == "show_all_tariffs":
         bot.send_message(user.id, local.all_tariffs[user.language_code], reply_markup=all_tariffs(user.language_code))
