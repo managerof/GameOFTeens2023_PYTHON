@@ -5,7 +5,7 @@ from menus import *       # import pre-designed menus
 #import callbacks          # callbacks handler
 
 
-bot = telebot.TeleBot('BOT_API')
+bot = telebot.TeleBot('BOT_API_KEY')
 db = utils.Database(utils.USERS_DATA_FILE_PATH) # db object to handle user data (save, load, init user)
 
 temp_users_data = {}
@@ -68,11 +68,14 @@ def handle_start(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def handle_callback_query(call):
-    
     # initialize user object
     user = db.LoadUser(call.from_user.id)
     
-    # yeah switches was a good idea but i didn't had enough time for restructuring it ;)
+    if not user.id in temp_users_data:
+        temp_users_data[user.id] = {"internet":0,
+                                    "calls":0,
+                                    "socials":0,
+                                    "pay":0}
     
     if call.data == "help_menu":
         bot.send_message(user.id, local.help_menu[user.language_code], reply_markup=get_help_menu(user.language_code))
@@ -99,24 +102,60 @@ def handle_callback_query(call):
     
     if call.data == "choose_tariff":
         menu = types.InlineKeyboardMarkup(row_width=1)
-        menu.add(types.InlineKeyboardButton(local.lets_go[user.language_code], callback_data='lets_choose_tariff'))
+        menu.add(types.InlineKeyboardButton(local.lets_go[user.language_code], callback_data='lets_choose_tariff_'))
         menu.add(types.InlineKeyboardButton(local.go_back[user.language_code], callback_data='help_menu'))
         bot.send_message(user.id, local.ask_for_asking[user.language_code], reply_markup=menu)
         return
     
-    if call.data == "lets_choose_tariff":
-        menu = types.InlineKeyboardMarkup(row_width=1)
-        menu.add(types.InlineKeyboardButton(local.internet_usually_use_answer1[user.language_code], callback_data='choose_tariff_step2'))
-        menu.add(types.InlineKeyboardButton(local.internet_usually_use_answer2[user.language_code], callback_data='choose_tariff_step2'))
-        menu.add(types.InlineKeyboardButton(local.internet_usually_use_answer3[user.language_code], callback_data='choose_tariff_step2'))
+    # handle user chooses and save to temporary storage
+    if "-" in call.data:
+        print(call.data)
+        datta = call.data.split("-")[1]
         
-        bot.send_message(user.id, local.internet_usually_use[user.language_code], reply_markup=menu) #callback_data="choose_tariff_step2"
+        if "1." in datta:
+            temp_users_data[user.id]["internet"] = datta[2]
+            print(datta[2])
+            print(temp_users_data[user.id]["internet"])
+    
+    # internet asks
+    if "lets_choose_tariff_" in call.data:
+        menu = types.InlineKeyboardMarkup(row_width=1)
+        menu.add(types.InlineKeyboardButton(local.internet_usually_use_answer1[user.language_code], callback_data='choose_tariff_step2-1.1'))
+        menu.add(types.InlineKeyboardButton(local.internet_usually_use_answer2[user.language_code], callback_data='choose_tariff_step2-1.2'))
+        menu.add(types.InlineKeyboardButton(local.internet_usually_use_answer3[user.language_code], callback_data='choose_tariff_step2-1.3'))
+        
+        bot.send_message(user.id, local.internet_usually_use[user.language_code], reply_markup=menu)
         
     
-    if call.data == "choose_tariff_step2":
+    # minutes asks
+    if "choose_tariff_step2" in call.data:
+        menu = types.InlineKeyboardMarkup(row_width=1)
+        menu.add(types.InlineKeyboardButton(local.minutes_usually_use_answer1[user.language_code], callback_data='choose_tariff_step3-2.1'))
+        menu.add(types.InlineKeyboardButton(local.minutes_usually_use_answer2[user.language_code], callback_data='choose_tariff_step3-2.2'))
+        menu.add(types.InlineKeyboardButton(local.minutes_usually_use_answer3[user.language_code], callback_data='choose_tariff_step3-2.3'))
         
+        bot.send_message(user.id, local.usually_use1[user.language_code], reply_markup=menu)
         return
     
+    # social media asks
+    if "choose_tariff_step3" in call.data:
+        menu = types.InlineKeyboardMarkup(row_width=1)
+        menu.add(types.InlineKeyboardButton(local.socials_usually_use_answer1[user.language_code], callback_data='choose_tariff_step4-3.1'))
+        menu.add(types.InlineKeyboardButton(local.socials_usually_use_answer2[user.language_code], callback_data='choose_tariff_step4-3.2'))
+        menu.add(types.InlineKeyboardButton(local.socials_usually_use_answer3[user.language_code], callback_data='choose_tariff_step4-3.3'))
+        
+        bot.send_message(user.id, local.usually_use2[user.language_code], reply_markup=menu)
+        return
+    
+    # tariff price asks
+    if "choose_tariff_step4" in call.data:
+        menu = types.InlineKeyboardMarkup(row_width=1)
+        menu.add(types.InlineKeyboardButton(local.internet_usually_use_answer1[user.language_code], callback_data='choose_tariff_step5-4.1'))
+        menu.add(types.InlineKeyboardButton(local.internet_usually_use_answer2[user.language_code], callback_data='choose_tariff_step5-4.2'))
+        menu.add(types.InlineKeyboardButton(local.internet_usually_use_answer3[user.language_code], callback_data='choose_tariff_step5-4.3'))
+        
+        bot.send_message(user.id, local.usually_use3[user.language_code], reply_markup=menu)
+        return
     
     if call.data == "show_all_tariffs":
         bot.send_message(user.id, local.all_tariffs[user.language_code], reply_markup=all_tariffs(user.language_code))
