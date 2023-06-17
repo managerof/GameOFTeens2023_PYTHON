@@ -179,7 +179,7 @@ def handle_callback_query(call):
         bot.send_photo(call.message.chat.id, img, caption=caption, reply_markup=menu)
     
     if call.data == "show_and_back_3":
-        photo_path = './img/smart_life3.png'
+        photo_path = './img/school_life.png'
         caption = local.caption3[user.language_code]
         img = open(photo_path, 'rb')
         
@@ -191,7 +191,7 @@ def handle_callback_query(call):
         bot.send_photo(call.message.chat.id, img, caption=caption, reply_markup=menu)
     
     if call.data == "show_and_back_4":
-        photo_path = './img/smart_life3.png'
+        photo_path = './img/vilnyi_life.png'
         caption = local.caption4[user.language_code]
         img = open(photo_path, 'rb')
         
